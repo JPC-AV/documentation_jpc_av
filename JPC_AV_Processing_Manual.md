@@ -182,7 +182,7 @@ These fields are written to ArchivesSpace by the CSV import script. The source f
 | **MKV embedded tag** | `DESCRIPTION` — note this tag is intentionally brief and may differ from the fuller ArchivesSpace scope note; it is not a direct source for the ArchivesSpace field. |
 | **Data** | A brief description of the tape's intellectual content. |
 | **How imported** | Written by the import script as a multipart note with a text subnote. Only created when the column contains content. |
-| **Manual adjustment** | Sometimes — content may be refined after import. Duration is added to this note programmatically by the directory processing script (see 0.B). |
+| **Manual adjustment** | Sometimes — content may be refined after import. |
 | **Why here** | Provides intellectual content description at the item level. |
 
 > **N.B.** A new CSV column — likely `ASpace Scope and Contents Note` or `ASpace Description` (name TBD) — will replace `DESCRIPTION` as the source for the ArchivesSpace import. Like `ASpace PhysTech Note`, this column will be staff-assembled, informed by but not identical to the `DESCRIPTION` MKV tag, and reviewed before import. The `DESCRIPTION` field will remain as the MKV tag embedding source. See Appendix B.
@@ -243,11 +243,11 @@ These fields are written to ArchivesSpace by the directory processing script, wh
 
 | | |
 |---|---|
-| **ArchivesSpace field** | `notes[]` — type: `scopecontent`, Defined List subnote, label: `Duration` |
+| **ArchivesSpace field** | `notes[]` — type: `phystech`, Defined List subnote, label: `Duration` |
 | **Source** | Extracted from the .mkv file via `mediainfo` |
 | **MKV embedded tag** | No — extracted directly from the file's stream metadata, not from a tag. |
 | **Data** | Runtime in hh:mm:ss format, e.g., `01:23:45`. |
-| **How imported** | `aspace-rename-directories.py` fetches the existing ArchivesSpace record, appends a Defined List subnote to the Scope and Content note, and writes it back. Idempotent — re-running removes and rewrites the Duration entry without duplicating it. |
+| **How imported** | `aspace-rename-directories.py` fetches the existing ArchivesSpace record, appends a Defined List subnote to the Physical Characteristics and Technical Requirements note (preserving any existing text subnotes), and writes it back. Idempotent — re-running removes and rewrites the Duration entry without duplicating it. |
 | **Manual adjustment** | No. Must not be edited by hand. |
 | **Why here** | Duration is the most important descriptive datum for a video recording after its title. Extracting it from the actual digitized file guarantees accuracy over any estimate in the source documentation. |
 
@@ -404,17 +404,17 @@ The import script creates the archival object and its top container.
 
 The directory processing script updates the record with Duration and Physical Details.
 
-**Updated Scope and Contents note** (Duration added as a Defined List subnote):
+**Updated Physical Characteristics and Technical Requirements note** (Duration added as a Defined List subnote):
 
 ```json
 {
   "jsonmodel_type": "note_multipart",
-  "type": "scopecontent",
+  "type": "phystech",
   "publish": true,
   "subnotes": [
     {
       "jsonmodel_type": "note_text",
-      "content": "Promotional clip for episode 22 of the Ebony/Jet Celebrity Showcase series."
+      "content": "Slight ringing present throughout. Hue is inconsistent; skin tones are redder in some sections."
     },
     {
       "jsonmodel_type": "note_definedlist",
@@ -461,11 +461,11 @@ The directory processing script updates the record with Duration and Physical De
 
 *Scope and Contents:*
 > Promotional clip for episode 22 of the Ebony/Jet Celebrity Showcase series.
->
-> Duration: 00:02:30
 
 *Physical Characteristics and Technical Requirements:*
 > Slight ringing present throughout. Hue is inconsistent; skin tones are redder in some sections.
+>
+> Duration: 00:02:30
 
 **Instance**
 - Type: Moving Images (Video) | Top Container: AV Case JPC_AV_00012
@@ -688,7 +688,7 @@ Item-level records represent individual physical objects — a single videotape 
 | Component Unique Identifier | **Yes** | The JPC_AV_##### identifier assigned to the tape. If a tape has not been assigned a JPC_AV_##### identifier, stop and contact McDowell, Blake before proceeding. |
 | Date | **Yes** (if known) | Label: creation, Edited, or broadcast. Type: Single. Enter in the Begin field in YYYY-MM-DD format. See 3.D.i. |
 | Extent | **Yes** | Portion: whole. Number: 1 (or higher only for retained exact duplicate copies). Type: from controlled vocabulary (see Appendix A). Physical Details: SD video, color, sound, or the applicable combination. |
-| Duration | **Yes** | hh:mm:ss. Added programmatically to the Scope and Content note as a Defined List subnote by `aspace-rename-directories.py`. Not entered manually. |
+| Duration | **Yes** | hh:mm:ss. Added programmatically to the Physical Characteristics and Technical Requirements note as a Defined List subnote by `aspace-rename-directories.py`. Not entered manually. |
 | Instance | **Yes** | Instance type: Moving Images (Video) or Audio. Top container type: AV Case. Top container indicator: JPC_AV_#####. See Chapter 5. |
 | Publish? | **Yes** | Always checked. |
 
@@ -777,14 +777,6 @@ Keep descriptions brief. A single sentence is acceptable. It is also acceptable 
 > - **Shared physical tapes:** When one tape contains parts of two separately described items, add a cross-reference in the Scope and Content note of each. Example: *Interview concludes at 00:34:12 on tape 2; remainder of tape 2 contains the opening of the Stevie Wonder segment (see EJS episode 1001, Stevie Wonder interview, tape 1 of 3).*
 > - **Unclear tape sequence:** *Sequence of original recordings appears to be: tape marked "PM" first, tape marked "Eve 1" second.*
 
-After digitization, `aspace-rename-directories.py` adds a Duration defined list to the Scope and Content note:
-
-- Subnote type: Defined List
-- Item label: **Duration**
-- Item value: hh:mm:ss (extracted from the .mkv file via mediainfo)
-
-> **N.B.** Duration is not entered manually. It is added programmatically from the digitized file and should not be edited by hand.
-
 ---
 
 ### 3.D.iv Physical Characteristics and Technical Requirements Note
@@ -801,6 +793,14 @@ Sources for this note include:
 When records are created through the automated CSV import workflow, content is drawn from whichever of these sources are applicable, assembled into the `ASpace PhysTech Note` column of the import CSV, and reviewed and edited by staff before ingesting to ArchivesSpace.
 
 Recording quality issues observed during or after digitization — such as poor video quality, audio distortion, or channel imbalance — are also recorded in this note, not in the Physical Detail sub-element of the Extent.
+
+After digitization, `aspace-rename-directories.py` adds a Duration defined list subnote to this note:
+
+- Subnote type: Defined List
+- Item label: **Duration**
+- Item value: hh:mm:ss (extracted from the .mkv file via mediainfo)
+
+> **N.B.** Duration is not entered manually. It is added programmatically from the digitized file and should not be edited by hand.
 
 ---
 
@@ -965,8 +965,8 @@ Examples:
 
 | Note Type | Level | Purpose and Structure |
 |-----------|-------|-----------------------|
-| Scope and Content (`scopecontent`) | Item | Brief description of intellectual content. Text subnote. After digitization, also contains a Defined List subnote with label "Duration" and value in hh:mm:ss. |
-| Physical Characteristics and Technical Requirements (`phystech`) | Item | Technical and physical observations about the tape and its recording. Text subnote. Includes pre-transfer physical inspection notes and post-transfer playback quality notes. |
+| Scope and Content (`scopecontent`) | Item | Brief description of intellectual content. Text subnote. |
+| Physical Characteristics and Technical Requirements (`phystech`) | Item | Technical and physical observations about the tape and its recording. Text subnote. After digitization, also contains a Defined List subnote with label "Duration" and value in hh:mm:ss. |
 | Scope and Content — Production Crew (`scopecontent`, label: "Production Crew") | Episode sub-series | Labeled note containing a Defined List of production credits. Role and name for each crew member. Entered manually in ArchivesSpace from tape labels, slates, or production documentation. |
 
 ---
@@ -1034,7 +1034,7 @@ Fetch the full current list from ArchivesSpace using `check_extent_types.py`. Th
 | Extent Number | **Yes** | 1 (or count of identical retained copies) |
 | Extent Type | **Yes** | From controlled vocabulary; must match ArchivesSpace dropdown exactly |
 | Extent Physical Details | **Yes** | SD video, color, sound (or applicable combination) |
-| Duration | **Yes** | Added programmatically to Scope and Content note as a Defined List subnote by `aspace-rename-directories.py`. Not entered manually. |
+| Duration | **Yes** | Added programmatically to Physical Characteristics and Technical Requirements note as a Defined List subnote by `aspace-rename-directories.py`. Not entered manually. |
 | Instance Type | **Yes** | Moving Images (Video) or Audio |
 | Top Container Type | **Yes** | AV Case |
 | Top Container Indicator | **Yes** | JPC_AV_##### |
@@ -1044,8 +1044,8 @@ Fetch the full current list from ArchivesSpace using `check_extent_types.py`. Th
 
 | Element | Required? | Value / Notes |
 |---------|-----------|---------------|
-| Scope and Content note | Optional | Multipart note, text subnote. Brief intellectual content description. Defined list subnote added programmatically for Duration. |
-| Physical Characteristics & Technical Requirements note | Optional | Multipart note, text subnote. Use when there is something to report about transfer quality, playback issues, or tape condition. |
+| Scope and Content note | Optional | Multipart note, text subnote. Brief intellectual content description. |
+| Physical Characteristics & Technical Requirements note | Optional | Multipart note, text subnote. Use when there is something to report about transfer quality, playback issues, or tape condition. Defined list subnote added programmatically for Duration. |
 | Conditions Governing Access | Optional | Only when item has a specific access condition |
 | Conditions Governing Reproduction and Use | Optional | |
 | Existence and Location of Copies | Optional | |
