@@ -25,7 +25,9 @@ These guidelines draw on the Archives of American Art's *Processing Collections 
 Additional resources consulted:
 
 - PB Core Audiovisual Metadata Standard
-- NMAAHC Media Archivist digitization documentation and embedded metadata specifications
+- NMAAHC TBM preservation documentation, archival practices, and embedded metadata specifications
+
+These guidelines were developed with input from staff at the Getty Research Institute (GRI) and across the Smithsonian Institution.
 
 ---
 
@@ -68,7 +70,7 @@ These fields are written to ArchivesSpace by the CSV import script. The source f
 | **ArchivesSpace field** | `component_id` |
 | **CSV column** | `CATALOG_NUMBER` |
 | **MKV embedded tag** | `CATALOG_NUMBER` |
-| **Data** | The JPC_AV_##### identifier assigned to the tape and its case. |
+| **Data** | The JPC_AV_##### identifier assigned to the tape, its case, and its digitized file. |
 | **How imported** | Written directly by the import script. |
 | **Manual adjustment** | No. Must not be changed after creation. |
 | **Why here** | Serves as the stable, unique identifier linking the physical object to its ArchivesSpace record and its digitized file. Duplicate values are a fatal error in the import script. |
@@ -247,9 +249,9 @@ These fields are written to ArchivesSpace by the directory processing script, wh
 | **Source** | Extracted from the .mkv file via `mediainfo` |
 | **MKV embedded tag** | No — extracted directly from the file's stream metadata, not from a tag. |
 | **Data** | Runtime in hh:mm:ss format, e.g., `01:23:45`. |
-| **How imported** | `aspace-rename-directories.py` fetches the existing ArchivesSpace record, appends a Defined List subnote to the Physical Characteristics and Technical Requirements note (preserving any existing text subnotes), and writes it back. Idempotent — re-running removes and rewrites the Duration entry without duplicating it. |
+| **How imported** | `aspace-rename-directories.py` fetches the existing ArchivesSpace record, appends a Defined List subnote to the Physical Characteristics and Technical Requirements note (preserving any existing text subnotes), and writes it back. Re-running the script removes and rewrites the Duration entry without duplicating it. |
 | **Manual adjustment** | No. Must not be edited by hand. |
-| **Why here** | Duration is the most important descriptive datum for a video recording after its title. Extracting it from the actual digitized file guarantees accuracy over any estimate in the source documentation. |
+| **Why here** | Runtime extracted from the digitized file is more accurate than any estimate from the source documentation, and is not available until digitization is complete. |
 
 ---
 
