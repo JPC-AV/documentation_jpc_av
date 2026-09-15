@@ -308,7 +308,7 @@ The following example shows what a single item-level archival object looks like 
 
 ```
 CATALOG_NUMBER:                  JPC_AV_00012
-ASpace Title:                    Ebony/Jet Celebrity Showcase, episode 22, promo
+ASpace Title:                    Ebony/Jet Celebrity Showcase, Episode 22, Promo
 Creation or Recording Date:      8/1/1982
 Edit Date:                       [empty]
 Broadcast Date:                  [empty]
@@ -345,7 +345,7 @@ Before writing, the importer confirms that no record with this Component Unique 
   "parent": {"ref": "/repositories/2/archival_objects/12345"},
   "level": "item",
   "publish": true,
-  "title": "Ebony/Jet Celebrity Showcase, episode 22, promo",
+  "title": "Ebony/Jet Celebrity Showcase, Episode 22, Promo",
   "component_id": "JPC_AV_00012",
   "dates": [
     {
@@ -463,7 +463,7 @@ The record is exported, the title cell is edited in the sheet, and the export is
 
 **Basic Information**
 - Level: Item
-- Title: Ebony/Jet Celebrity Showcase, episode 22, promo
+- Title: Ebony/Jet Celebrity Showcase, Episode 22, Promo
 - Component Unique ID: JPC_AV_00012
 
 **Dates**
@@ -731,20 +731,22 @@ The audiovisual material is described in its own ArchivesSpace resource (*Johnso
 The Ebony/Jet Showcase series has the deepest nesting structure currently in use. The full hierarchy for an EJS episode, showing titles as entered (ArchivesSpace appends dates and identifiers in the tree display), is:
 
 ```
-Ebony/Jet Showcase, TV series, 1984–1993  (Series)
-> Season 1, 1985–1986  (Sub-Series)
-> > Episode 1001, 1985-09-12  (Sub-Series)
+Ebony/Jet Showcase, TV series  (Series)
+> Season 1  (Sub-Series)
+> > Episode 1001  (Sub-Series)
 > > > Edited  (File)
-> > > > Ebony/Jet Showcase, episode 1001, 1985-08-24  (Item)
+> > > > Ebony/Jet Showcase, Episode 1001  (Item)
 > > > > > Ephemera  (Item — child of tape, if applicable)
 > > > Raw  (File)
 > > > > [interview file record — title defined by the Media Archivist]  (File)
-> > > > > Ebony/Jet Showcase, episode 1001, James Brown interview, tape 1 of 3, 1985-08-03  (Item)
-> > > > > Ebony/Jet Showcase, episode 1001, James Brown interview, tape 2 of 3, 1985-08-03  (Item)
-> > > > > Ebony/Jet Showcase, episode 1001, James Brown interview, tape 3 of 3, 1985-08-03  (Item)
+> > > > > Ebony/Jet Showcase, Episode 1001, James Brown Interview, Tape 1 of 3  (Item)
+> > > > > Ebony/Jet Showcase, Episode 1001, James Brown Interview, Tape 2 of 3  (Item)
+> > > > > Ebony/Jet Showcase, Episode 1001, James Brown Interview, Tape 3 of 3  (Item)
 > > > Promo  (File)
-> > > > Ebony/Jet Showcase, episode 1001, 1985-08-24  (Item)
+> > > > Ebony/Jet Showcase, Episode 1001, Promo  (Item)
 ```
+
+In the staff interface each of these displays with its date appended (*Episode 1001, 1985-09-12*; *Ebony/Jet Showcase, Episode 1001, 1985-08-24*): that is the record's Date field, not part of the title.
 
 Each item record carries its JPC_AV_##### identifier in the Component Unique Identifier field, never in the title (see 5.A). Records imported without a title display the identifier as a placeholder title until cataloged.
 
@@ -1029,8 +1031,8 @@ Use the official title if one exists. If no official title exists, construct one
 | No format terms | Never use a specific format term (VHS, U-matic, Betacam) as a title or part of a title. Titles should convey intellectual content, not physical format. |
 | No ambiguous labels | Do not transcribe ambiguous media labels directly as unit titles. If you do not understand what a label means, researchers likely will not either. Consult the NMAAHC Media Archivist for unlabeled or poorly labeled media. |
 | Qualifiers only when needed | Do not force a qualifier if one is not needed. Qualifiers should reflect markings on the tape itself or text visible in the video, not content derived by the archivist from watching the recording. |
-| Qualifier consistency | Qualifiers must be consistent across tapes. We use **Safety Master** as the standard form — not *master (safety)*, *safety copy*, or *safety*. |
-| No "copy" | Avoid the word *copy* in qualifiers. Use *master*, *safety*, or *dub*; not *master copy* or *safety copy*. |
+| Qualifier consistency | Qualifiers must be consistent across tapes, and capitalized. We use **Safety Master** as the standard form — not *master (safety)*, *safety copy*, or *safety*. |
+| No "copy" | Avoid the word *copy* in qualifiers. Use *Master*, *Safety*, or *Dub*; not *Master Copy* or *Safety Copy*. |
 | Spelling | Retain original or colloquial spelling found on the tape unless it is an obvious typographic error that would cause confusion. Correct *mastre* to *master*, but do not change *trax* to *tracks*. |
 
 ### Unidentified or Poorly Labeled Tapes
@@ -1045,15 +1047,17 @@ When a tape is unlabeled or its label cannot be interpreted, do not use the labe
 For all EJS and Ebony/Jet Celebrity Showcase material, use the following pattern:
 
 ```
-<Series Name>, <episode number>[, <qualifier if needed>]
+<Series Name>, Episode <number>[, <Qualifier if needed>]
 ```
+
+*Episode* and every qualifier are capitalized (*Safety Master*, *Promo*, *Studio Footage*). The title never contains a date: the date lives in the record's Date field, and ArchivesSpace appends it to the title in the tree and in search results. What goes in the `ASpace Title` column is the title alone.
 
 Examples:
 
-> *Ebony/Jet Showcase, episode 1001*  
-> *Ebony/Jet Showcase, episode 1004, safety master*  
-> *Ebony/Jet Showcase, episode 1005, studio footage*  
-> *Ebony/Jet Celebrity Showcase, episode 09, Grace Jones makeup and fashion sequences*
+> *Ebony/Jet Showcase, Episode 1001*\
+> *Ebony/Jet Showcase, Episode 1004, Safety Master*\
+> *Ebony/Jet Showcase, Episode 1005, Studio Footage*\
+> *Ebony/Jet Celebrity Showcase, Episode 09, Grace Jones Makeup and Fashion Sequences*
 
 Episode numbering conventions differ between the two programs:
 
@@ -1068,19 +1072,19 @@ Episode numbering conventions differ between the two programs:
 
 For raw footage tapes, include enough identifying information in the title to distinguish the tape within its group. Where multiple tapes cover the same interview or shoot, use a part indicator:
 
-> *Ebony/Jet Showcase, episode 1001, James Brown interview, tape 1 of 3, 1985-08-03*\
-> *Ebony/Jet Showcase, episode 1001, James Brown interview, tape 2 of 3, 1985-08-03*\
-> *Ebony/Jet Showcase, episode 1001, James Brown interview, tape 3 of 3, 1985-08-03*
+> *Ebony/Jet Showcase, Episode 1001, James Brown Interview, Tape 1 of 3*\
+> *Ebony/Jet Showcase, Episode 1001, James Brown Interview, Tape 2 of 3*\
+> *Ebony/Jet Showcase, Episode 1001, James Brown Interview, Tape 3 of 3*
 
 The tapes of one interview sit as items under a file record of their own beneath *Raw* (see 3.E); the file record's title is defined by the Media Archivist.
 
 ## 5.D. Non-EJS Title Patterns
 
-For program categories other than EJS, use the same general principles: formal title if available, otherwise a constructed title using content, creator, date, or genre. Apply qualifiers as needed but avoid format terms and the word *copy*.
+For program categories other than EJS, use the same general principles: formal title if available, otherwise a constructed title using content, creator, or genre. Capitalize qualifiers, apply them only as needed, and avoid format terms and the word *copy*. As everywhere, the date belongs in the Date field, not the title.
 
-> *American Black Achievement Awards, 1982 broadcast*  
-> *[Subject name] interview, [publication context if known], [date]*  
-> *Ebony Fashion Fair, 1979, promotional footage*
+> *American Black Achievement Awards, Broadcast*\
+> *[Subject name] Interview, [publication context if known]*\
+> *Ebony Fashion Fair, Promotional Footage*
 
 ## 5.E. Series and Sub-Series Titles
 
