@@ -1175,7 +1175,7 @@ Values in the enumeration for audiovisual formats, as of the last check (2026-09
 
 > **N.B.** If the format of a tape cannot be identified, enter `cassettes` or `reels` according to its physical form, and note the uncertainty in the Physical Characteristics and Technical Requirements note. Do not guess or estimate. Consult the NMAAHC Media Archivist if unsure.
 >
-> Terms such as *3/4 inch videotape*, *videocassettes*, *videoreels*, *videotapes*, *audiocassette* and *audiotape reel* are **not** in the enumeration; a sheet using them is refused by the import.
+> Terms such as *3/4 inch videotape*, *videocassettes*, *videoreels*, *videotapes*, *audiocassette* and *audiotape reel* are **not** in the enumeration. They are refused when creating records or changing an extent type. Under `--update-only`, an unchanged stored term is preserved even if it is no longer in the current vocabulary.
 
 ## 7.B. Date Labels
 
