@@ -1137,24 +1137,45 @@ The top container represents the outermost physical housing of the tape — in m
 
 The Extent Type field must match the ArchivesSpace `extent_extent_type` enumeration exactly. Values derive from the PB Core audiovisual metadata standard. Use `check_extent_types.py` to retrieve the current list from the live ArchivesSpace instance.
 
-Representative values in use for JPC AV material:
+Values in the enumeration for audiovisual formats, as of the last check (2026-09-22). The table is a guide; the live list from `check_extent_types.py` is authoritative, and terms are case- and spelling-exact.
 
 | Value | Format Notes |
 |-------|-------------|
-| 1 inch videotape | 1-inch type C reel-to-reel. Most common format for EJS broadcast masters. |
-| 2 inch videotape | Quad-head reel-to-reel. |
-| 3/4 inch videotape | U-matic cassette. |
+| **Video tape** | |
+| 2 inch videotape | Quadruplex open reel. |
+| 1 inch videotape | 1-inch type C open reel. |
 | 1/2 inch videotape | Open-reel 1/2 inch. |
-| Betacam | Sony Betacam family (Betacam, Betacam SP, Digital Betacam). |
-| Betamax | Consumer Betamax format. |
+| U-matic | 3/4-inch U-matic cassette. |
+| Betacam | Sony Betacam. |
+| Betacam: SP | Betacam SP. |
+| Digital Betacam | Digital Betacam. |
+| Betamax | Consumer Betamax. |
 | VHS | Consumer VHS cassette. |
-| U-matic | Alternative to "3/4 inch videotape" for U-matic cassettes. |
+| D2 | D2 composite digital cassette. |
 | MiniDV | Consumer/prosumer DV cassette. |
-| videocassettes | Generic term; use only if specific format cannot be determined. |
-| videoreels | Generic term for open-reel video. |
-| videotapes | Generic term; use only as a last resort. |
+| Hi8 | Hi8 cassette. |
+| Video8 | Video8 cassette. |
+| Digital8 | Digital8 cassette. |
+| **Disc** | |
+| DVD | Video DVD (optical-disc transfers). |
+| Audio CD | Audio compact disc. |
+| **Audio tape** | |
+| 2 inch audio tape | Open reel. |
+| 1 inch audio tape | Open reel. |
+| 1/2 inch audio tape | Open reel. |
+| 1/4 inch audio tape | Open reel. |
+| Audio cassette | Compact audio cassette. |
+| Mini-cassette | Mini audio cassette. |
+| **Film** | |
+| 16mm film | |
+| 35mm film | |
+| **Generic** | |
+| cassettes | Generic; use only when the specific cassette format cannot be determined. |
+| reels | Generic; use only when the specific open-reel format cannot be determined. |
 
-> **N.B.** If the format of a tape cannot be identified, enter `videotapes` as the Extent Type and note the uncertainty in the Physical Characteristics and Technical Requirements note. Do not guess or estimate. Consult the NMAAHC Media Archivist if unsure.
+> **N.B.** If the format of a tape cannot be identified, enter `cassettes` or `reels` according to its physical form, and note the uncertainty in the Physical Characteristics and Technical Requirements note. Do not guess or estimate. Consult the NMAAHC Media Archivist if unsure.
+>
+> Terms such as *3/4 inch videotape*, *videocassettes*, *videoreels*, *videotapes*, *audiocassette* and *audiotape reel* are **not** in the enumeration; a sheet using them is refused by the import.
 
 ## 7.B. Date Labels
 
@@ -1223,24 +1244,17 @@ Subject terms at the AV item level follow the same general approach as the still
 
 # Appendix A. ArchivesSpace Controlled Vocabulary for AV
 
-## A.1 Extent Type Values (Partial List)
+## A.1 Extent Type Values (Audiovisual)
 
-Fetch the full current list from ArchivesSpace using `check_extent_types.py`. The values below are representative; the authoritative source is the live ArchivesSpace enumeration.
+Fetch the full current list from ArchivesSpace using `check_extent_types.py`; the live enumeration is authoritative. The audiovisual values, as of the last check (2026-09-22):
 
-- 1 inch videotape
-- 2 inch videotape
-- 3/4 inch videotape
-- 1/2 inch videotape
-- Betacam
-- Betamax
-- VHS
-- U-matic
-- MiniDV
-- audiocassette
-- audiotape reel
-- videocassettes
-- videoreels
-- videotapes
+- Video tape: 2 inch videotape, 1 inch videotape, 1/2 inch videotape, U-matic, Betacam, Betacam: SP, Digital Betacam, Betamax, VHS, D2, MiniDV, Hi8, Video8, Digital8
+- Disc: DVD, Audio CD
+- Audio tape: 2 inch audio tape, 1 inch audio tape, 1/2 inch audio tape, 1/4 inch audio tape, Audio cassette, Mini-cassette
+- Film: 16mm film, 35mm film
+- Generic: cassettes, reels
+
+The enumeration also holds units used elsewhere in the archive (Linear Feet, linear_feet, cubic_feet, leaves, sheets, volumes, photographic_prints, photographic_slides, gigabytes, megabytes, terabytes); these are not used for AV items.
 
 ## A.2 Required Item-Level Fields: Quick Reference
 
