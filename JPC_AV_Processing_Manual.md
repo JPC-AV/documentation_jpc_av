@@ -38,7 +38,7 @@ This chapter documents every ArchivesSpace field used in JPCA AV item-level reco
 
 Fields are grouped by the stage at which they are populated. Two kinds of statement appear side by side and are labeled where they differ: **policy** (what JPCA AV description requires) and **automation** (what the scripts in the `aspace_jpc_av` repository enforce or write). The scripts accept some input the policy would not, and automate less than the policy covers; the policy governs.
 
-> **N.B.** Where "manual adjustment" is noted, this may mean editing the record directly in the ArchivesSpace staff interface or re-importing data for that record. Records can be updated at any point by exporting them with `aspace_csv_export.py`, editing the sheet, and re-running the import script with `--update-only` — see 0.E.
+> **N.B.** Where "manual adjustment" is noted for a field managed in Airtable, the correction is made in Airtable and sent to ArchivesSpace with `--update-only` (see 0.E); a change made only in the ArchivesSpace staff interface is overwritten by the next update from Airtable. Fields not managed in Airtable (the Production Crew note, agents) are edited in the staff interface directly.
 
 ---
 
@@ -487,11 +487,44 @@ The record is exported, the title cell is edited in the sheet, and the export is
 
 ---
 
-## 0.E. Updating Records: The Export → Edit → Update Round Trip
+## 0.E. Where the Data Lives and How It Moves
+
+**Airtable is where item data is entered and corrected.** ArchivesSpace receives that data from Airtable and is never the place fields are first entered. The one exception is data the scripts derive from the digitized file itself, such as Duration, whose source is the file. Two flows move data between them, and each has one direction.
+
+### Creating records: Airtable → ArchivesSpace
+
+1. Export the batch from its Airtable view.
+2. Fill parent ref IDs with `aspace_csv_export.py --fill-parents`, which writes a new, filled CSV.
+3. Rows the fill could not resolve are listed on the console and in the `Parent Note` column. Delete those lines from the filled CSV and leave them marked in Airtable for a later batch.
+4. Validate, check parents and extent types, dry-run, then import with `--create-records`, all on the filled CSV.
+5. Write the filled parent ref IDs back into Airtable, and mark the imported records there as being in ArchivesSpace.
+
+### Updating records: Airtable → ArchivesSpace
+
+1. Export from an Airtable view filtered to records already in ArchivesSpace.
+2. Dry-run `aspace_csv_import.py --update-only`, and **read the change list**. It shows every field that would change on every record, old value then new.
+3. Run it for real.
+
+`--update-only` checks every catalog number before writing. If a single row is not in ArchivesSpace, the whole run stops with nothing written. If that happens, delete those lines from the CSV; Airtable already records that those items are not in ArchivesSpace.
+
+### Rules that keep the two in step
+
+- **Correct Airtable-managed fields in Airtable, not in the staff interface.** An update from Airtable writes Airtable's value over whatever ArchivesSpace holds, so a fix made only in ArchivesSpace is undone by the next update. If a correction must be made in ArchivesSpace, copy it into Airtable at once.
+- **Blank cells never clear a value.** An empty cell in the sheet leaves the stored value untouched. To remove a note or other value from ArchivesSpace, delete it there by hand and in Airtable at the same time.
+- **Parents are placed once.** `--update-only` never moves a record, so a wrong parent is fixed by moving the record in ArchivesSpace, and then corrected in Airtable.
+- **Always dry-run against production first.**
+
+### Checking what ArchivesSpace holds
+
+To see records exactly as stored, export them from ArchivesSpace (0.F). That is for review and for confirming an import; corrections still go through Airtable.
+
+---
+
+## 0.F. Updating Records: The Export → Edit → Update Round Trip
 
 *Scripts: `aspace_csv_export.py`, `aspace_csv_import.py --update-only`, `check_mads.py`*
 
-Records that already exist are corrected in bulk by round trip rather than by re-creating them:
+Exporting shows records exactly as ArchivesSpace holds them, which is how an import is confirmed and how stored data is reviewed. The same sheet can be edited and sent back with `--update-only`; the mechanics are below. For fields managed in Airtable, though, corrections are made in Airtable and sent from there (0.E), so the two never drift apart.
 
 1. **Export.** `aspace_csv_export.py` walks the AV resource (or a list of identifiers) and writes a sheet with exactly the import columns, plus audit columns: the record's ref_id, URI, a staff-interface link, warnings, created/modified stamps, and its place in the tree (Level, Depth, and a Path of its ancestors). Rows are written in tree order, so an export of every level reads like the staff interface's tree (a `--list` export keeps the order of the list). Non-item rows are not warned — the Level column identifies them — but `--update-only` refuses them all the same; a blank Warnings cell on a series or file row does not make it re-importable. Warnings cover metadata gaps the policy cares about (an item with no title or date, and a missing Component Unique Identifier, which also blocks re-import); rows the importer will refuse on re-import (an identifier that is not `JPC_AV_` plus digits or is shared by two records, a stored date that is not a valid ISO date); and fields whose editing through the sheet is restricted (a date outside 1940–2020 may be corrected to one inside the range but not changed to another outside it; a range or non-single date, a label shared by several dates, and the type on a record with several extents cannot be changed at all). A record or ancestor with no position in ArchivesSpace also draws a warning that its tree order is approximate; that one does not affect re-import.
 2. **Edit** the sheet. Blank cells mean "leave alone"; the round trip can replace a value but never clear one. Deletions are made in ArchivesSpace directly.
