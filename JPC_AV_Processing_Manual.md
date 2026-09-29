@@ -493,30 +493,34 @@ The record is exported, the title cell is edited in the sheet, and the export is
 
 ### Creating records: Airtable → ArchivesSpace
 
-1. Export the batch from its Airtable view.
-2. Fill parent ref IDs with `aspace_csv_export.py --fill-parents`, which writes a new, filled CSV.
-3. Rows the fill could not resolve are listed on the console and in the `Parent Note` column. Delete those lines from the filled CSV and leave them marked in Airtable for a later batch.
-4. Validate, check parents and extent types, dry-run, then import with `--create-records`, all on the filled CSV.
-5. Write the filled parent ref IDs back into Airtable, and mark the imported records there as being in ArchivesSpace.
+All commands run from the `aspace_jpc_av` folder of the tools repository, with its Python environment active. The tools' README gives the exact commands.
+
+1. **Make a grid view for the batch** in `<<< ASpace_import >>>`, holding only items not yet in ArchivesSpace: filter out rows whose `ASpace Item Record Created` is Yes and rows with `ASpace Hold` ticked. Make it collaborative, and give it a name without spaces.
+2. **Pull the view** with `airtable_pull.py`. It saves the view as a CSV in `__airtable_exports__/`, named for the view and the time. Leave that file as pulled; if the view changes, pull again and use only the new file. If it is unclear whether some items are already in ArchivesSpace, `aspace_csv_export.py --check` on the pull says, for each catalog number, whether it is in ArchivesSpace, new, ambiguous, or could not be checked. Items already there are marked Yes in Airtable or left out of the view, and the view is pulled again.
+3. **Fill parents** with `aspace_csv_export.py --fill-parents`. It never edits the pull: it writes a *ready* file (rows with a parent, to import) and a *review* file (rows that need a person, each with a `Parent Note` and a `Fix in` column saying whether to look in Airtable first or, when Airtable's values are right, at the ArchivesSpace hierarchy). A parent already entered in Airtable is kept as a person's decision. Review rows are fixed at the source and come back in a later pull.
+4. **Dry-run the import** of the ready file and read its plan: every row's title, where it will sit in the tree, its dates, format, container and notes, and anything skipped or refused. A dry run writes nothing.
+5. **Import.** The real run shows the plan again and writes only after the operator types `yes`. It ends by printing the exact command for the next step.
+6. **Record the results in Airtable** promptly, with the command the import printed. The write-back lists every change, one line per item — the parent it writes into `ASpace Parent RefID` and `ASpace Item Record Created` set to Yes — and writes only after `yes`. Items the run did not create are left alone.
 
 ### Updating records: Airtable → ArchivesSpace
 
-1. Export from an Airtable view filtered to records already in ArchivesSpace.
-2. Dry-run `aspace_csv_import.py --update-only`, and **read the change list**. It shows every field that would change on every record, old value then new.
-3. Run it for real.
+1. **Make a narrow view** of records already in ArchivesSpace, showing `CATALOG_NUMBER` and only the fields this batch changes, and **pull** it.
+2. **Dry-run** `aspace_csv_import.py --update-only` on the pull, and **read the plan**. It lists every record that would change, with each field's current value and its new value, notes in full.
+3. **Run it for real** on the same pull, and type `yes` when asked. If Airtable changes after the pull, pull again and repeat the dry run.
 
-`--update-only` checks every catalog number before writing. If a single row is not in ArchivesSpace, the whole run stops with nothing written. If that happens, delete those lines from the CSV; Airtable already records that those items are not in ArchivesSpace.
+`--update-only` checks every catalog number before writing. If a single row is not in ArchivesSpace, the whole run stops with nothing written. Check the number and the target environment, then correct the Airtable view, or send the item through the creating flow if it is genuinely new. If a record is edited in ArchivesSpace between the plan and the write, that row is refused rather than overwritten.
 
 ### Rules that keep the two in step
 
 - **Correct Airtable-managed fields in Airtable, not in the staff interface.** An update from Airtable writes Airtable's value over whatever ArchivesSpace holds, so a fix made only in ArchivesSpace is undone by the next update. If a correction must be made in ArchivesSpace, copy it into Airtable at once.
-- **Blank cells never clear a value.** An empty cell in the sheet leaves the stored value untouched. To remove a note or other value from ArchivesSpace, delete it there by hand and in Airtable at the same time.
+- **Blank cells never clear a value.** An empty cell in the sheet leaves the stored value untouched. To remove a note, clear the cell in Airtable *and* remove the text in the staff interface — only that paragraph, since a PhysTech note can also hold the Duration list.
 - **Parents are placed once.** `--update-only` never moves a record, so a wrong parent is fixed by moving the record in ArchivesSpace, and then corrected in Airtable.
-- **Always dry-run against production first.**
+- **Holding items back.** An item that must not be processed yet — a record deleted from ArchivesSpace pending a decision, say — gets `ASpace Hold` ticked in Airtable, with the reason in `ASpace Hold Reason`, and every create view filters held items out.
+- **Always dry-run against production first**, and read the plan before typing `yes`.
 
 ### Checking what ArchivesSpace holds
 
-To see records exactly as stored, export them from ArchivesSpace (0.F). That is for review and for confirming an import; corrections still go through Airtable.
+To learn only whether catalog numbers exist, use `aspace_csv_export.py --check`: it prints the answer on screen and compares no metadata. To see records exactly as stored, export them from ArchivesSpace (0.F). That is for review; corrections still go through Airtable.
 
 ---
 
@@ -532,7 +536,7 @@ Exporting shows records exactly as ArchivesSpace holds them, which is how an imp
 
 The export can also confirm which items have reached the Smithsonian DAMS: `--mads-live` (or the standalone `check_mads.py`) checks each identifier's public MADS URL and records *Yes* / *No* / *check failed* / *invalid catalog number* in the sheet. It reads only the public MADS endpoint and writes nothing to ArchivesSpace.
 
-The scripts that talk to ArchivesSpace (import, export, directory processing, the extent-type and parent checks) select sandbox or production from `creds.py` and require `--env NAME` whenever more than one is configured, so a forgotten flag can never write to the wrong instance; the MADS checker needs no environment. Runs that produce output leave a timestamped file in the reports folder (the export, MADS check and parent check accept `-o` for another path): the importer a log plus CSV and JSON receipts, the directory processor a log, the export and MADS checks their CSVs, the validator and parent check their reports; the extent-type checker only prints its result.
+The scripts that talk to ArchivesSpace (import, export, directory processing, the extent-type and parent checks) select sandbox or production from `creds.py` and require `--env NAME` whenever more than one is configured, so a forgotten flag can never write to the wrong instance; the MADS checker needs no environment. Runs that produce output leave a timestamped file in the reports folder (the export, MADS check and parent check accept `-o` for another path): a real import a log plus CSV and JSON receipts and a snapshot of the records as stored, the directory processor a log, the export and MADS checks their CSVs, the validator and parent check their reports. A dry run of the importer writes no files, and `--check` and the extent-type checker only print their result.
 
 ---
 
