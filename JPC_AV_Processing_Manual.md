@@ -521,7 +521,7 @@ All commands run from the `aspace_jpc_av` folder of the tools repository, with i
 
 ### Checking what ArchivesSpace holds
 
-To learn whether catalog numbers exist — and whether Airtable agrees — use `aspace_csv_export.py --check` on a pull: it looks each number up live, compares the pull's `ASpace Parent RefID` and `ASpace Item Record Created` with ArchivesSpace, and lists what disagrees (a parent that differs, a blank parent, an item not marked Yes, one marked Yes with no record). It prints the answer on screen, compares nothing else, and changes nothing. The pull exports only the columns the view shows, so the view must show both `ASpace Parent RefID` and `((( ASpace Item Record Created )))`; to catch "marked Yes but missing", it must also include the Yes rows. To see records exactly as stored, export them from ArchivesSpace (0.F). That is for review; corrections still go through Airtable.
+To learn whether catalog numbers exist — and whether Airtable agrees — use `aspace_csv_export.py --check` on a pull: it looks each number up live, compares the pull's `ASpace Parent RefID` and `ASpace Item Record Created` with ArchivesSpace, and lists what disagrees (a parent that differs, a blank parent where ArchivesSpace has one, an item not marked Yes, one marked Yes with no record). It prints the answer on screen, compares nothing else, and changes nothing. The pull exports only the columns the view shows, so the view must show both `ASpace Parent RefID` and `((( ASpace Item Record Created )))`; to catch "marked Yes but missing", it must also include the Yes rows. To see records exactly as stored, export them from ArchivesSpace (0.F). That is for review; corrections still go through Airtable.
 
 ---
 
