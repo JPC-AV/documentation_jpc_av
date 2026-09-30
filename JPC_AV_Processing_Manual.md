@@ -521,7 +521,7 @@ All commands run from the `aspace_jpc_av` folder of the tools repository, with i
 
 ### Checking what ArchivesSpace holds
 
-To learn only whether catalog numbers exist, use `aspace_csv_export.py --check`: it prints the answer on screen and compares no metadata. To see records exactly as stored, export them from ArchivesSpace (0.F). That is for review; corrections still go through Airtable.
+To learn whether catalog numbers exist — and whether Airtable agrees — use `aspace_csv_export.py --check` on a pull: it looks each number up live, compares the pull's `ASpace Parent RefID` and `ASpace Item Record Created` with ArchivesSpace, and lists what disagrees (a parent that differs, a blank parent, an item not marked Yes, one marked Yes with no record). It prints the answer on screen, compares nothing else, and changes nothing. To catch "marked Yes but missing", pull a view that includes the Yes rows. To see records exactly as stored, export them from ArchivesSpace (0.F). That is for review; corrections still go through Airtable.
 
 ---
 
@@ -537,7 +537,7 @@ Exporting shows records exactly as ArchivesSpace holds them, which is how an imp
 
 The export can also confirm which items have reached the Smithsonian DAMS: `--mads-live` (or the standalone `check_mads.py`) checks each identifier's public MADS URL and records *Yes* / *No* / *check failed* / *invalid catalog number* in the sheet. It reads only the public MADS endpoint and writes nothing to ArchivesSpace.
 
-The scripts that talk to ArchivesSpace (import, export, directory processing, the extent-type and parent checks) select sandbox or production from `creds.py` and require `--env NAME` whenever more than one is configured, so a forgotten flag can never write to the wrong instance; the MADS checker needs no environment. Runs that produce output leave a timestamped file in the reports folder (the export, MADS check and parent check accept `-o` for another path): a real import a log plus CSV and JSON receipts and a snapshot of the records as stored, the directory processor a log, the export and MADS checks their CSVs, the validator and parent check their reports. A dry run of the importer writes no files, and `--check` and the extent-type checker only print their result.
+The scripts that talk to ArchivesSpace (import, export, directory processing, the extent-type check) select sandbox or production from `creds.py` and require `--env NAME` whenever more than one is configured, so a forgotten flag can never write to the wrong instance; the MADS checker needs no environment. Runs that produce output leave a timestamped file in the reports folder (the export, MADS check and parent check accept `-o` for another path): a real import a log plus CSV and JSON receipts and a snapshot of the records as stored, the directory processor a log, the export and MADS checks their CSVs, the validator and parent check their reports. A dry run of the importer writes no files, and `--check` and the extent-type checker only print their result.
 
 ---
 
