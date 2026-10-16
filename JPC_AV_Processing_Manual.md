@@ -74,7 +74,7 @@ These fields are written to ArchivesSpace by the CSV import script. The source f
 | **Data** | The JPC_AV_##### identifier assigned to the tape, its case, and its digitized file. Policy: five digits. Automation: the scripts accept `JPC_AV_` followed by any run of digits and refuse anything else (a letter O for a zero, a stray suffix). The identifier form for ephemera child records is under discussion — see Appendix B. |
 | **How imported** | Written directly by the import script. It is also the matching key for every later operation: `--update-only` finds the record by it, and the directory processing script finds the record for a folder by it. |
 | **Manual adjustment** | No. Must not be changed after creation. |
-| **Why here** | Serves as the stable, unique identifier linking the physical object to its ArchivesSpace record and its digitized file. A `--create-records` run stops before writing anything if any row's identifier already exists in ArchivesSpace (with `--skip-duplicates`, that row is skipped instead); the validator also flags an identifier that appears twice in the sheet. |
+| **Why here** | Serves as the stable, unique identifier linking the physical object to its ArchivesSpace record and its digitized file. A `--create-records` run stops before writing anything if any row's identifier already exists in ArchivesSpace (with `--keep-going`, that row is skipped instead); the validator also flags an identifier that appears twice in the sheet. |
 
 ---
 
