@@ -234,9 +234,11 @@ These fields are written to ArchivesSpace by the CSV import script. The source f
 
 ## 0.B. Fields Populated via Directory Processing Script
 
-*Script: `aspace-rename-directories.py`*
+*Script: `aspace-rename-directories.py`, run as `jpc-rename`*
 
 These fields are written to ArchivesSpace by the directory processing script, which runs on the digitized folders after the media file is available (`.mkv` by default; optical-disc `.mp4` packages with `--mp4`). For each `JPC_AV_#####` folder it finds the record by Component Unique Identifier, re-verifies it before writing, updates the two fields below, and then renames the folder (see 1.F).
+
+The everyday command is `jpc-rename --directory FOLDER`, where FOLDER holds the digitized `JPC_AV_#####` folders: first with `--dry-run`, which shows each folder's outcome, leaves ArchivesSpace and folder names unchanged, and saves a log, then for real. A real run first shows a plan of every change — each folder's current and new Duration, the Physical Details fill and the new folder name, or why the folder is refused — and writes only after the operator types `yes`; each folder is checked again just before it is written. Like the other `jpc-` commands it uses production unless `--env sandbox` is added. The sandbox changes only which ArchivesSpace is written, though: the folders on disk are renamed in either environment, so a sandbox trial is run on disposable copies of the folders.
 
 ---
 
@@ -249,7 +251,7 @@ These fields are written to ArchivesSpace by the directory processing script, wh
 | **MKV embedded tag** | No — extracted directly from the file's stream metadata, not from a tag. |
 | **Data** | Runtime in hh:mm:ss format, e.g., `01:23:45`. |
 | **How imported** | The script fetches the record and, depending on what it finds: updates every existing Duration item in place (across all phystech notes, so no stale value is left behind); or, if the record has a phystech note but no Duration, appends a Defined List to that note after its existing text; or, if the record has no phystech note, creates one (label empty, published) holding only the Duration list. Re-running never duplicates the entry. |
-| **Manual adjustment** | No. Must not be edited by hand. |
+| **Manual adjustment** | No, except where the script cannot supply it: a multi-titleset disc, which the script refuses, has its Duration entered by hand (see 4.D.iv). Otherwise it must not be edited by hand. |
 | **Why here** | Runtime extracted from the digitized file is more accurate than any estimate from the source documentation, and is not available until digitization is complete. |
 
 ---
@@ -674,7 +676,7 @@ REF_JPC_AV_05499_s2_CAPTIONS.txt
 
 ## 1.F. Directory Names After ArchivesSpace Linking
 
-Each digitized tape is delivered in a folder named for its identifier. Once the tape's ArchivesSpace record exists, `aspace-rename-directories.py` (see 0.B) links the two by renaming the folder to carry the record's ref_id:
+Each digitized tape is delivered in a folder named for its identifier. Once the tape's ArchivesSpace record exists, `aspace-rename-directories.py` — the `jpc-rename` command (see 0.B) — links the two by renaming the folder to carry the record's ref_id:
 
 ```
 JPC_AV_#####/                       before
@@ -688,7 +690,7 @@ JPC_AV_05498_refid_3f9c2a7d0b1e4c6a8d5f7e9b2c4a6d8e/
 └── JPC_AV_05498.mkv
 ```
 
-The media file keeps its delivered name unless the run is given `--rename-media`, which stamps it the same way (`JPC_AV_05498_refid_<ref_id>.mkv`). That option is refused for a folder whose checksum manifest names the file, or whose manifests cannot be read, since the rename would orphan the manifest entry.
+The media file keeps its delivered name unless the script is run directly with `--rename-media` (`jpc-rename` does not offer it), which stamps it the same way (`JPC_AV_05498_refid_<ref_id>.mkv`). That option is refused for a folder whose checksum manifest names the file, or whose manifests cannot be read, since the rename would orphan the manifest entry.
 
 Optical-disc transfers arrive as a package rather than a single file. The manifests record the inner names, so only the top-level folder is renamed and nothing inside the package changes (`--rename-media` is rejected in this mode):
 
@@ -703,7 +705,7 @@ JPC_AV_14180/                       before
 JPC_AV_14180_refid_<ref_id>/        after (run with --mp4)
 ```
 
-A multi-titleset disc (the converter keeps the unsuffixed main `JPC_AV_#####.mp4` and adds `JPC_AV_#####_title02.mp4`, `_title03.mp4`... for the other titlesets) has no single runtime and is refused; its record is handled by hand (see 4.D.iv). Audio deliveries (1.B) are not yet handled by the script — see Appendix B.
+A multi-titleset disc (the converter keeps the unsuffixed main `JPC_AV_#####.mp4` and adds `JPC_AV_#####_title02.mp4`, `_title03.mp4`... for the other titlesets) has no single runtime and is refused on every run; its record is completed by hand (see 4.D.iv). Once that is done, its folder is renamed on its own by running the script directly on that one folder with `--single`, `--no-update` and `--mp4`. That renames only the top-level folder, reads no media file and writes nothing to the record — which is why the record work comes first — and the renamed folder is left out of every later run. Audio deliveries (1.B) are not yet handled by the script — see Appendix B.
 
 ---
 
