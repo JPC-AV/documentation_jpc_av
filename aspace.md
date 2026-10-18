@@ -1,5 +1,15 @@
-# ASpace
+# ASpace (historical, 2024)
 #### [Made by Bleakley McDowell]
+
+> **Historical guide (January 2024) - not for current processing.** This
+> click-through walkthrough predates the current workflow, and parts of it
+> now conflict with it: its example title ("Ebony/Jet Showcase: show #1003")
+> does not follow the current title pattern, and its container steps create
+> a new top container without first searching for the existing one. Process
+> items with the [JPC AV Processing Manual](JPC_AV_Processing_Manual.md) -
+> see [5.B. Ebony/Jet Showcase Title Pattern](JPC_AV_Processing_Manual.md#5b-ebonyjet-showcase-title-pattern)
+> and [6.B. Creating an Instance](JPC_AV_Processing_Manual.md#6b-creating-an-instance).
+> This guide is kept for reference only.
 
 
 ### 1\. 
