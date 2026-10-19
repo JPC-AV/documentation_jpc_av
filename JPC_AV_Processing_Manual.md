@@ -1,7 +1,7 @@
 # JOHNSON PUBLISHING COMPANY ARCHIVE
 ### Audiovisual Materials: Arrangement and Description in ArchivesSpace
 
-Version 2026-09-12
+Version 2026-10-18
 
 Smithsonian National Museum of African American History and Culture (NMAAHC) / Getty Research Institute (GRI)
 
@@ -1347,4 +1347,4 @@ The following items are pending final decisions. Consult McDowell, Blake for cur
 
 ---
 
-*JPC Archive | Audiovisual Materials: Arrangement and Description in ArchivesSpace | Version 2026-09-12 | NMAAHC / GRI*
+*JPC Archive | Audiovisual Materials: Arrangement and Description in ArchivesSpace | Version 2026-10-18 | NMAAHC / GRI*
