@@ -812,9 +812,9 @@ The Component Unique Identifier of the ephemera record has not been settled. Thr
 
 ### Episode vs. Season Sub-Series
 
-Seasons are created as sub-series directly beneath the Ebony/Jet Showcase series. Individual episodes are created as sub-series beneath the appropriate season. File and item levels are created beneath each episode sub-series as needed based on the variety of tape types present.
+Seasons are created as sub-series directly beneath the Ebony/Jet Showcase series. Individual episodes are created as sub-series beneath the appropriate season. Beneath each episode sub-series, the file-level groupings **Edited**, **Raw**, and **Promo** are pre-created (see 4.C), and processing staff place items under them. An independent tape is an item directly beneath the grouping that fits it; a tape in a multi-tape unit is an item beneath that unit's own file record, which sits beneath *Raw* (see 3.E).
 
-> **N.B.** Not every episode requires all file-level groupings. Create only the file-level records that reflect the material actually present.
+> **N.B.** Processing staff do not create the Edited, Raw, or Promo groupings. If the grouping an item needs is missing, do not create it: hold the item — tick `ASpace Hold` in Airtable with the reason in `ASpace Issue`, and pull again after ticking it (see 0.E) — and contact NMAAHC Media Archivist & Conservator Bleakley McDowell at mcdowellh@si.edu. Processing staff do create the file record for a multi-tape unit beneath *Raw*; its title is defined by the Media Archivist (see 4.C).
 
 ## 3.C. Arranging Production Materials
 
@@ -829,7 +829,7 @@ The basic stages of video production, and the types of materials typically assoc
 - **Finishing:** Final edited master; safety master; other finished versions for different distribution outlets
 - **Distribution/Reference:** Broadcast copies; dubs; VHS reference copies; internal JPC library copies; alternate cuts or edits; clips
 
-The file-level groupings within an episode sub-series — **Edited**, **Raw**, and **Promo** — reflect these stages. Not every episode will have all three.
+The file-level groupings within an episode sub-series — **Edited**, **Raw**, and **Promo** — reflect these stages. Not every episode has material in all three.
 
 ## 3.D. Multiple Copies, Duplicates, and Originals
 
