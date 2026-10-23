@@ -1,7 +1,7 @@
 # JOHNSON PUBLISHING COMPANY ARCHIVE
 ### Audiovisual Materials: Arrangement and Description in ArchivesSpace
 
-Version 2026-10-21
+Version 2026-10-22
 
 Smithsonian National Museum of African American History and Culture (NMAAHC) / Getty Research Institute (GRI)
 
@@ -238,7 +238,7 @@ These fields are written to ArchivesSpace by the CSV import script. The source f
 
 These fields are written to ArchivesSpace by the directory processing script, which runs on the digitized folders after the media file is available (`.mkv` by default; optical-disc `.mp4` packages with `--mp4`). For each `JPC_AV_#####` folder it finds the record by Component Unique Identifier, re-verifies it before writing, updates the two fields below, and then renames the folder (see 1.F).
 
-The everyday command is `jpc-rename --directory FOLDER --env production`, where FOLDER holds the digitized `JPC_AV_#####` folders: first with `--dry-run`, which shows each folder's outcome, leaves ArchivesSpace and folder names unchanged, and saves a log, then for real. A real run first shows a plan of every change — each folder's current and new Duration, the Physical Details fill and the new folder name, or why the folder is refused — and writes only after the operator types `yes`; each folder is checked again just before it is written. Like the other `jpc-` commands that talk to ArchivesSpace it needs `--env production` or `--env sandbox` on every run; there is no default. The sandbox changes only which ArchivesSpace is written, though: the folders on disk are renamed in either environment, so a sandbox trial is run on disposable copies of the folders. After DAMS ingest, which the operator runs outside these tools, `jpc-mads --directory FOLDER` on the same batch folder reports which items are live in MADS (see 0.F).
+The everyday command is `jpc-rename`, run on the folder that holds the digitized `JPC_AV_#####` folders: first with `--dry-run`, which shows each folder's outcome and leaves ArchivesSpace and the folder names unchanged, then for real. A real run first shows a plan of every change — each folder's current and new Duration, the Physical Details fill and the new folder name, or why the folder is refused — and writes only after the operator types `yes`. Like the other `jpc-` commands that talk to ArchivesSpace it needs `--env production` or `--env sandbox` on every run; there is no default. The sandbox changes only which ArchivesSpace is written, though: the folders on disk are renamed in either environment, so a sandbox trial is run on disposable copies of the folders. After DAMS ingest, which the operator runs outside these tools, a MADS check on the same batch folder reports which items are live in MADS (see 0.F). The full procedure — commands, options, logs and what to check when a run stops — is in the tools' guide [Appending RefIDs to Folders](https://github.com/JPC-AV/aspace_jpc_av/blob/main/refid_appending/APPENDING_REFIDS_TO_FOLDERS.md) and in `jpc-rename --help`.
 
 ---
 
@@ -304,7 +304,7 @@ These fields are not populated by any script and must be entered directly in the
 
 ## 0.D. Complete Example: CSV Row → ArchivesSpace Record
 
-The following example shows what a single item-level archival object looks like as JSON at each stage of the workflow. This is the actual data structure sent to and stored by the ArchivesSpace API.
+The following example follows a single item-level record through the workflow: the CSV row, what each stage changes, and how the result looks in the staff interface. The exact JSON that ArchivesSpace stores at each stage is in the tools' technical example, [EXAMPLE_MAPPING.md](https://github.com/JPC-AV/aspace_jpc_av/blob/main/data_import_export/docs/EXAMPLE_MAPPING.md).
 
 ### Sample CSV Row
 
@@ -328,82 +328,7 @@ The parent ref_id is the 32-character value ArchivesSpace assigns to the parent 
 
 Before writing, the importer confirms that no record with this Component Unique Identifier exists, that the parent resolves, that the extent type is in the live vocabulary, and that at most one AV Case container carries this indicator.
 
-**Top Container** (reused if one with this indicator already exists; otherwise created first):
-
-```json
-{
-  "indicator": "JPC_AV_00012",
-  "type": "AV Case",
-  "repository": {"ref": "/repositories/2"}
-}
-```
-
-**Archival Object:**
-
-```json
-{
-  "jsonmodel_type": "archival_object",
-  "resource": {"ref": "/repositories/2/resources/7"},
-  "parent": {"ref": "/repositories/2/archival_objects/12345"},
-  "level": "item",
-  "publish": true,
-  "title": "Ebony/Jet Celebrity Showcase, Episode 22, Promo",
-  "component_id": "JPC_AV_00012",
-  "dates": [
-    {
-      "jsonmodel_type": "date",
-      "date_type": "single",
-      "label": "creation",
-      "begin": "1982-08-01",
-      "expression": "1982-08-01"
-    }
-  ],
-  "extents": [
-    {
-      "jsonmodel_type": "extent",
-      "portion": "whole",
-      "number": "1",
-      "extent_type": "2 inch videotape"
-    }
-  ],
-  "notes": [
-    {
-      "jsonmodel_type": "note_multipart",
-      "type": "scopecontent",
-      "label": "",
-      "publish": true,
-      "subnotes": [
-        {
-          "jsonmodel_type": "note_text",
-          "content": "Promotional clip for episode 22 of the Ebony/Jet Celebrity Showcase series."
-        }
-      ]
-    },
-    {
-      "jsonmodel_type": "note_multipart",
-      "type": "phystech",
-      "label": "",
-      "publish": true,
-      "subnotes": [
-        {
-          "jsonmodel_type": "note_text",
-          "content": "Slight ringing present throughout. Hue is inconsistent; skin tones are redder in some sections."
-        }
-      ]
-    }
-  ],
-  "instances": [
-    {
-      "jsonmodel_type": "instance",
-      "instance_type": "Moving Images (Video)",
-      "sub_container": {
-        "jsonmodel_type": "sub_container",
-        "top_container": {"ref": "/repositories/2/top_containers/78901"}
-      }
-    }
-  ]
-}
-```
+The importer reuses the AV Case top container with this indicator if one already exists, and otherwise creates it first. It then creates the archival object beneath the parent, with the title, the creation date, one extent, the Scope and Contents and Physical Characteristics notes, and an instance linking the container.
 
 The blank Edit Date and Broadcast Date cells produce no date objects. Had the title cell been blank, `title` would be `JPC_AV_00012`; had Original Format been blank, the record would have no extent.
 
@@ -412,46 +337,6 @@ The blank Edit Date and Broadcast Date cells produce no date objects. Had the ti
 ### Stage 2: After `aspace-rename-directories.py`
 
 The folder `JPC_AV_00012/` holds `JPC_AV_00012.mkv`. The record has a phystech note with no Duration, so a Defined List is appended after the existing text; the single extent's Physical Details is blank, so it is filled. Had a Duration already been present it would have been updated in place; had Physical Details held a value it would have been kept. The folder is then renamed `JPC_AV_00012_refid_<ref_id>/` (see 1.F).
-
-**Updated Physical Characteristics and Technical Requirements note:**
-
-```json
-{
-  "jsonmodel_type": "note_multipart",
-  "type": "phystech",
-  "label": "",
-  "publish": true,
-  "subnotes": [
-    {
-      "jsonmodel_type": "note_text",
-      "content": "Slight ringing present throughout. Hue is inconsistent; skin tones are redder in some sections."
-    },
-    {
-      "jsonmodel_type": "note_definedlist",
-      "publish": true,
-      "items": [
-        {
-          "jsonmodel_type": "note_definedlist_item",
-          "label": "Duration",
-          "value": "00:02:30"
-        }
-      ]
-    }
-  ]
-}
-```
-
-**Updated Extent:**
-
-```json
-{
-  "jsonmodel_type": "extent",
-  "portion": "whole",
-  "number": "1",
-  "extent_type": "2 inch videotape",
-  "physical_details": "SD video, color, sound"
-}
-```
 
 ---
 
@@ -495,18 +380,16 @@ The record is exported, the title cell is edited in the sheet, and the export is
 
 ### Creating records: Airtable → ArchivesSpace
 
-Each step has a short `jpc-` command, run with the tools' Python environment active (the tools' README covers setup - once for each Python environment that should have the commands; `jpc` lists the commands, and `jpc-STEP --help` shows what each accepts). The commands that talk to ArchivesSpace need `--env production` or `--env sandbox` on every run — there is no default, and a command without it stops before anything runs. The steps below are the production workflow, so they show `--env production`. A sandbox trial never goes on to the Airtable write-back, which accepts production imports only. If the requested environment is not configured on that computer, the command stops and says what is missing; it never switches to another environment.
+Each step has a short `jpc-` command, run with the tools' Python environment active (the tools' [quick start](https://github.com/JPC-AV/aspace_jpc_av/blob/main/QUICK_START.md) covers setup - once for each Python environment that should have the commands; `jpc` lists the commands, and `jpc-STEP --help` shows what each accepts; the full procedure, with every saved file and recovery case, is in [Importing and Updating Data](https://github.com/JPC-AV/aspace_jpc_av/blob/main/data_import_export/IMPORTING_AND_UPDATING_DATA.md)). The commands that talk to ArchivesSpace need `--env production` or `--env sandbox` on every run — there is no default, and a command without it stops before anything runs. The steps below are the production workflow, so they show `--env production`. A sandbox trial never goes on to the Airtable write-back, which accepts production imports only. If the requested environment is not configured on that computer, the command stops and says what is missing; it never switches to another environment.
 
 1. **Make a grid view for the batch** in `<<< ASpace_import >>>`, holding only items not yet in ArchivesSpace: filter out rows whose `ASpace Item Record Created` is Yes and rows with `ASpace Hold` ticked. Make it collaborative, and give it a name without spaces.
 2. **Pull the view** with `jpc-pull --view NAME`. It saves the view as a CSV in `__airtable_exports__/`, named for the view and the time. Leave that file as pulled; if the view changes, pull again and use only the new file. If it is unclear whether some items are already in ArchivesSpace, `jpc-check --file PULL --env production` (or `jpc-lookup`, another name for it) says, for each catalog number, whether it is in ArchivesSpace, not found by JPC_AV_xxxxx, ambiguous, or could not be checked. Items already there are marked Yes in Airtable or left out of the view, and the view is pulled again.
-3. **Fill parents** with `jpc-fill --file PULL --env production`. It never edits the pull: it writes a *ready* file (rows with a parent, to import) and a *review* file (rows that need a person, each with a `Parent Note` and a `Fix in` column saying whether to look in Airtable first or, when Airtable's values are right, at the ArchivesSpace hierarchy). A parent already entered in Airtable is kept as a person's decision. Review rows are fixed at the source and come back in a later pull.
+3. **Fill parents** with `jpc-fill --file PULL --env production`. It never edits the pull: it writes a *ready* file (rows with a parent, to import) and a *review* file (rows that need a person, each with a `Parent Note` and a `Fix in` column saying whether to look in Airtable first or, when Airtable's values are right, at the ArchivesSpace hierarchy). A parent already entered in Airtable is kept as a person's decision. Review rows are fixed at the source and come back in a later pull. A missing *Edited*, *Raw* or *Promo* grouping is not created by processing staff: the item is held and escalated (see 3.B).
 4. **Dry-run the import** of the ready file — `jpc-import --file READY --env production --dry-run` — and read its plan: every row's title, where it will sit in the tree, its dates, format, container and notes, and anything skipped or refused. A dry run writes nothing.
 5. **Import** with `jpc-import --file READY --env production`. The real run shows the plan again and writes only after the operator types `yes`. It ends by printing the exact command for the next step.
-6. **Record the results in Airtable** promptly: `jpc-writeback --report REPORT.json` previews, the same with `--run` writes (the import also prints the full command). The write-back trusts the import's report and does not contact ArchivesSpace. It first checks that the report and its records file record the same ArchivesSpace server, repository and resource as creds.py's production entry, and stops before reading Airtable if they do not — a check that recorded settings agree, not that the records still exist or that the production entry really is production. If a record the run created has since been deleted, leave it out with `--exclude-catalog JPC_AV_xxxxx`, in the preview and again in the `--run`, or Airtable would record it as created. The write-back lists every change, one line per item — the parent it writes into `ASpace Parent RefID`, the item's own ref_id into `ASpace Item RefID` and `ASpace Item Record Created` set to Yes — and writes only after `yes`. Items the run did not create are left alone.
+6. **Record the results in Airtable** promptly: `jpc-writeback --report REPORT.json` previews, the same with `--run` writes (the import also prints the full command). For each item the run created, the write-back writes the parent into `ASpace Parent RefID` and the item's own ref_id into `ASpace Item RefID`, and sets `ASpace Item Record Created` to Yes; it writes only after `yes`, and items the run did not create are left alone. It accepts production imports only and does not contact ArchivesSpace. If a record the run created has since been deleted, leave it out with `--exclude-catalog JPC_AV_xxxxx`, in the preview and again in the `--run`, or Airtable would record it as created.
 
-The write-back needs a Single line text field named `ASpace Item RefID` in `<<< ASpace_import >>>`. Create it in Airtable before the first write-back: the write-back does not create it, and if the field is missing or has another type it stops with nothing written. The ref_id it records there is the item's own, taken from the record as the import read it back, after the write-back checks that it is this item's record in the resource — never the parent's ref_id or the record's URI. The two RefID fields are written only into blank cells: if `ASpace Parent RefID` or `ASpace Item RefID` already holds a different value, the row is left alone and listed for review (`jpc-writeback --help` says how to resolve these). `ASpace Item Record Created` is set to Yes where it is not Yes yet; a Yes already there is kept. Rerunning the write-back on an eligible production import report therefore fills a blank `ASpace Item RefID` even when the parent and Yes are already set.
-
-With `--run`, the parent and item ref_id are written first, ten rows at a time, each checked against Airtable's reply; Yes is set afterwards, only for rows whose parent and item ref_id are in place. If a metadata-write reply does not confirm both expected RefIDs, the row is not confirmed and this run does not set a new Yes. While writing, the run shows each step and its batches — re-checking, then how many rows are written and confirmed so far — and ends each step it completes with counts of rows written and confirmed, already in place, changed in Airtable since the plan (left alone) and, if any, not confirmed. An edit made in Airtable just before a write can still be overwritten, since Airtable cannot make a write conditional. A refused write, a lost reply or Ctrl-C stops the run; rows whose reply was lost are "unknown" — the write may or may not have landed. The run then tries to save an outcomes file beside the import report, one line per created row: `CATALOG_NUMBER`, `ASpace Parent RefID`, `ASpace Item RefID`, outcome and note. Near the end it prints `Saved write-back outcomes:` and the file's path, or, in red, `NOT saved write-back outcomes:` and the path it tried, then `Could not save the outcomes file` with the reason; Airtable was written as shown either way. A preview, or a run cancelled at `yes`, saves nothing. For any unfinished row, an outcomes file that was not saved, or a run that ended without either line (after a second Ctrl-C, say), run the same `--run` command again: it re-reads Airtable and writes only what is still missing.
+The write-back needs a Single line text field named `ASpace Item RefID` in `<<< ASpace_import >>>`, created in Airtable before the first write-back; without it the write-back stops with nothing written. The two RefID fields are written only into blank cells: a different value already there is left alone and listed for review. A run that stops part-way — a refused write, a lost reply, Ctrl-C — is finished by running the same `--run` command again: it re-reads Airtable and writes only what is still missing. The eligibility rules, the order of the writes, the outcomes file and every recovery case are in [Importing and Updating Data](https://github.com/JPC-AV/aspace_jpc_av/blob/main/data_import_export/IMPORTING_AND_UPDATING_DATA.md) and `jpc-writeback --help`.
 
 ### Updating records: Airtable → ArchivesSpace
 
@@ -527,7 +410,7 @@ With `--run`, the parent and item ref_id are written first, ten rows at a time, 
 
 ### Checking what ArchivesSpace holds
 
-To learn whether catalog numbers exist — and whether Airtable agrees — use `aspace_csv_export.py --check` on a pull: it looks each number up live, compares the pull's `ASpace Parent RefID` and `ASpace Item Record Created` with ArchivesSpace, and lists what disagrees (a parent that differs, a blank parent where ArchivesSpace has one, an item not marked Yes, one marked Yes with no record). It prints the answer on screen, compares nothing else, and changes nothing. The pull exports only the columns the view shows, so the view must show both `ASpace Parent RefID` and `((( ASpace Item Record Created )))`; to catch "marked Yes but missing", it must also include the Yes rows. To see records exactly as stored, export them from ArchivesSpace (0.F). That is for review; corrections still go through Airtable.
+To learn whether catalog numbers exist — and whether Airtable agrees — use `jpc-check --file PULL --env production` on a pull (or `jpc-lookup`, another name for it; run directly, `aspace_csv_export.py --check`): it looks each number up live, compares the pull's `ASpace Parent RefID` and `ASpace Item Record Created` with ArchivesSpace, and lists what disagrees (a parent that differs, a blank parent where ArchivesSpace has one, an item not marked Yes, one marked Yes with no record). It prints the answer on screen, compares nothing else, and changes nothing. The pull exports only the columns the view shows, so the view must show both `ASpace Parent RefID` and `((( ASpace Item Record Created )))`; to catch "marked Yes but missing", it must also include the Yes rows. To see records exactly as stored, export them from ArchivesSpace (0.F). That is for review; corrections still go through Airtable.
 
 ---
 
@@ -537,13 +420,13 @@ To learn whether catalog numbers exist — and whether Airtable agrees — use `
 
 Exporting shows records exactly as ArchivesSpace holds them, which is how an import is confirmed and how stored data is reviewed. The same sheet can be edited and sent back with `--update-only`; the mechanics are below. For fields managed in Airtable, though, corrections are made in Airtable and sent from there (0.E), so the two never drift apart.
 
-1. **Export.** `aspace_csv_export.py` walks the AV resource (or a list of identifiers) and writes a sheet with exactly the import columns, plus audit columns: the record's ref_id, URI, a staff-interface link, warnings, created/modified stamps, and its place in the tree (Level, Depth, and a Path of its ancestors). Rows are written in tree order, so an export of every level reads like the staff interface's tree (a `--list` export keeps the order of the list). Non-item rows are not warned — the Level column identifies them — but `--update-only` refuses them all the same; a blank Warnings cell on a series or file row does not make it re-importable. Warnings cover metadata gaps the policy cares about (an item with no title or date, and a missing Component Unique Identifier, which also blocks re-import); rows the importer will refuse on re-import (an identifier that is not `JPC_AV_` plus digits or is shared by two records, a stored date that is not a valid ISO date); and fields whose editing through the sheet is restricted (a date outside 1940–2020 may be corrected to one inside the range but not changed to another outside it; a range or non-single date, a label shared by several dates, and the type on a record with several extents cannot be changed at all). A record or ancestor with no position in ArchivesSpace also draws a warning that its tree order is approximate; that one does not affect re-import.
+1. **Export.** `aspace_csv_export.py` walks the AV resource (or a list of identifiers) and writes a sheet with exactly the import columns, plus audit columns: the record's ref_id, URI, a staff-interface link, warnings, created/modified stamps, and its place in the tree (Level, Depth, and a Path of its ancestors). Rows are written in tree order (a `--list` export keeps the order of the list). The Warnings column flags metadata gaps the policy cares about (an item with no title or date, a missing Component Unique Identifier), rows the importer will refuse on re-import, and fields whose editing through the sheet is restricted; non-item rows are refused on re-import whatever their Warnings cell says. [Importing and Updating Data](https://github.com/JPC-AV/aspace_jpc_av/blob/main/data_import_export/IMPORTING_AND_UPDATING_DATA.md) lists every warning.
 2. **Edit** the sheet. Blank cells mean "leave alone"; the round trip can replace a value but never clear one. Deletions are made in ArchivesSpace directly.
 3. **Update.** `aspace_csv_import.py --update-only` finds each record by its identifier, re-verifies it, and writes only the fields whose cell differs from what is stored. It never creates a record, never re-parents, and never touches the publish flag, instances, containers, existing extent fields other than the type, existing note metadata, the Duration list, or any date label or note type the sheet does not manage. Where a record lacks a structure the sheet supplies (no extent, no note of that type, no date under that label), a complete new one is added.
 
 The export can also confirm which items have reached the Smithsonian DAMS: `--mads-live` checks each identifier's public MADS URL and records *Yes* / *No* / *check failed* / *invalid catalog number* in the sheet. On its own, the same check is `jpc-mads` (the `check_mads.py` script): given either a list of identifiers (`--file`) or a batch folder (`--directory`, the item folders directly inside it, renamed or not), it saves a report with the same answers. It reads only the public MADS endpoint, takes no `--env`, and writes nothing to ArchivesSpace. A folder being in a batch does not prove the item was delivered to or ingested by DAMS. `jpc-mads --help` gives the details.
 
-Run directly, the scripts that talk to ArchivesSpace (import, export, directory processing, the extent-type check) select sandbox or production from `creds.py` and require `--env NAME` whenever more than one is configured, so a forgotten flag can never write to the wrong instance (the `jpc-` commands instead need `--env production` or `--env sandbox` on every run, shown before anything runs); the MADS checker needs no environment. Runs that produce output leave a timestamped file in the reports folder (the export and MADS check accept `-o` for another path): a real import a log plus CSV and JSON receipts and a snapshot of the records as stored, the directory processor a log, the export and MADS checks their CSVs. A dry run of the importer writes no files, `--check` prints its result (and saves it as a CSV only with `-o`), and the extent-type checker only prints.
+Run directly rather than through the `jpc-` commands, the scripts that talk to ArchivesSpace select sandbox or production from `creds.py` and require `--env NAME` whenever more than one is configured; the MADS checker needs no environment. Where each tool saves its files, and the direct options, are in [Importing and Updating Data](https://github.com/JPC-AV/aspace_jpc_av/blob/main/data_import_export/IMPORTING_AND_UPDATING_DATA.md) and each script's `--help`.
 
 ---
 
@@ -1351,4 +1234,4 @@ The following items are pending final decisions. Consult McDowell, Blake for cur
 
 ---
 
-*JPC Archive | Audiovisual Materials: Arrangement and Description in ArchivesSpace | Version 2026-10-21 | NMAAHC / GRI*
+*JPC Archive | Audiovisual Materials: Arrangement and Description in ArchivesSpace | Version 2026-10-22 | NMAAHC / GRI*
