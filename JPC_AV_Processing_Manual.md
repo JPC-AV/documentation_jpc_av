@@ -99,7 +99,7 @@ These fields are written to ArchivesSpace by the CSV import script. The source f
 | **ArchivesSpace field** | `parent.ref` |
 | **CSV column** | `ASpace Parent RefID` |
 | **MKV embedded tag** | No |
-| **Data** | The ref_id of the item's *immediate* file-level parent: the production-stage record (Edited, Raw, or Promo) for an independent tape, or the unit's own file record beneath Raw for a tape that is part of a set (see 3.E, 4.C). The importer accepts any parent in the resource, and `--update-only` never re-parents, so a wrong ref_id is fixed by moving the record in ArchivesSpace. The column can be filled before import with `aspace_csv_export.py --fill-parents`, which looks up the file record from the sheet's `EJS Episode` and `ASpace File Type` (keep `EJS Episode` filled; when it is blank the episode is read from the title, which must then follow the title pattern in 5.B exactly) and leaves Raw rows, and anything that does not match exactly one record, for a person. |
+| **Data** | The ref_id of the item's *immediate* file-level parent: the production-stage record (Edited, Raw, or Promo) for an independent tape, or the unit's own file record beneath Raw for a tape that is part of a set (see 3.E, 4.C). The importer refuses a parent that is not a file-level record; it checks only the level, not that the grouping belongs to the item's episode. `--update-only` never re-parents, so a wrong ref_id is fixed by moving the record in ArchivesSpace. The column can be filled before import with `aspace_csv_export.py --fill-parents`, which looks up the file record from the sheet's `EJS Episode` and `ASpace File Type` (keep `EJS Episode` filled; when it is blank the episode is read from the title, which must then follow the title pattern in 5.B exactly) and leaves Raw rows, and anything that does not match exactly one record, for a person. |
 | **How imported** | The script looks up the archival object with this ref_id — exactly one must match within the AV resource — and links the new item as its child. Used only when creating: `--update-only` ignores the column and never re-parents. |
 | **Manual adjustment** | No. If the parent ref_id is wrong the record must be moved manually. |
 | **Why here** | Establishes the item's position in the hierarchy. Required for creation — a `--create-records` run checks every parent first and stops before writing anything if one does not exist. |
@@ -326,7 +326,7 @@ The parent ref_id is the 32-character value ArchivesSpace assigns to the parent 
 
 ### Stage 1: After `aspace_csv_import.py --create-records`
 
-Before writing, the importer confirms that no record with this Component Unique Identifier exists, that the parent resolves, that the extent type is in the live vocabulary, and that at most one AV Case container carries this indicator.
+Before writing, the importer confirms that no record with this Component Unique Identifier exists, that the parent resolves to a file-level record, that the extent type is in the live vocabulary, and that at most one AV Case container carries this indicator.
 
 The importer reuses the AV Case top container with this indicator if one already exists, and otherwise creates it first. It then creates the archival object beneath the parent, with the title, the creation date, one extent, the Scope and Contents and Physical Characteristics notes, and an instance linking the container.
 
